@@ -1,0 +1,166 @@
+
+Un Usuario debe tener:
+
+Propiedades:
+username: String, obligatorio, único, al menos 3 caracteres.
+email: String, obligatorio, único, validado como un correo electrónico.
+password: String, obligatorio, almacenado de forma segura (encriptado con bcrypt).
+profilePicture: String, URL opcional para la imagen de perfil.
+bio: String, opcional, descripción breve del usuario (hasta 150 caracteres).
+followers: Array de ObjectId (referencia al modelo User), lista de seguidores.
+following: Array de ObjectId (referencia al modelo User), lista de usuarios que sigue.
+posts: Array de ObjectId (referencia al modelo Post), lista de publicaciones creadas por el usuario.
+role: String, valores posibles: 'user', 'admin', 'moderator'. Por defecto 'user'.
+subscription: ObjectId (referencia al modelo Subscription), detalles de la suscripción del usuario.
+createdAt: Date, fecha de creación del perfil.
+updatedAt: Date, fecha de la última actualización del perfil.
+
+deleted: Boolean, indica si el usuario ha sido borrado, por defecto false.
+
+Una publicación debe tener:
+
+Propiedades:
+author: ObjectId, referencia al modelo User, obligatorio.
+content: String, opcional si hay imágenes o videos, texto de la publicación.
+media: Array de String, URLs de imágenes o videos subidos en la publicación.
+likes: Array de ObjectId (referencia a User), lista de usuarios que le han dado "me gusta" a la publicación.
+comments: Array de ObjectId (referencia al modelo Comment), lista de comentarios asociados a la publicación.
+createdAt: Date, fecha de creación de la publicación.
+updatedAt: Date, fecha de la última actualización de la publicación.
+
+deleted: Boolean, indica si la publicación ha sido borrada, por defecto false.
+
+Un comentario debe tener:
+
+Propiedades:
+post: ObjectId, referencia al modelo Post, obligatorio.
+author: ObjectId, referencia al modelo User, obligatorio.
+content: String, obligatorio, contenido del comentario.
+createdAt: Date, fecha de creación del comentario.
+updatedAt: Date, fecha de la última actualización del comentario.
+
+deleted: Boolean, indica si el comentario ha sido borrado, por defecto false.
+
+Un mensaje directo debe tener:
+
+Propiedades:
+sender: ObjectId, referencia al modelo User, obligatorio.
+receiver: ObjectId, referencia al modelo User, obligatorio.
+content: String, obligatorio, el texto del mensaje.
+createdAt: Date, fecha de creación del mensaje.
+read: Boolean, indica si el mensaje ha sido leído, por defecto false.
+
+deleted: Boolean, indica si el mensaje ha sido borrado, por defecto false.
+
+Una conversación debe tener:
+
+Propiedades:
+Users: Array de ObjectIds, con los dos usuarios participantes de la conversacion, obligatorio.
+content: Array de ObjectIds con los IDs de todos los mensajes de la conversación, obligatorio.
+createdAt: Date, fecha de creación del mensaje.
+
+deleted: Booleano para saber si la conversación ha borrada o no, por defecto false.
+
+Una Subscripcion debe tener:
+
+Propiedades:
+user: ObjectId, referencia al modelo User, obligatorio.
+plan: String, valores posibles: 'free', 'premium', 'enterprise'.
+price: Number, precio del plan, dependiendo del tipo.
+startDate: Date, fecha de inicio de la suscripción.
+endDate: Date, fecha de finalización de la suscripción (si no es una suscripción activa).
+isActive: Boolean, estado de la suscripción (activa/inactiva).
+
+Una transaccion debe tener:
+
+Propiedades:
+user: ObjectId, referencia al modelo User, obligatorio, usuario que realiza la transacción.
+amount: Number, monto de la transacción.
+currency: String, la moneda usada para la transacción, como 'USD'.
+status: String, estado de la transacción, valores posibles: 'pending', 'completed', 'failed'.
+paymentMethod: String, método de pago usado (PayPal)
+createdAt: Date, fecha de la transacción.
+
+
+
+------------------------------------------------------------
+RUTAS DE USUARIOS
+
+
+Gestión de Usuarios:
+
+Rutas:
+GET /admin/users → Listar todos los usuarios.
+PATCH /admin/users/:userId → Editar usuarios (por admin).
+DELETE /admin/users/:userId → Eliminar o bloquear usuarios.
+
+Autenticación:
+
+Rutas:
+POST /auth/register → Crear una nueva cuenta de usuario.
+POST /auth/login → Iniciar sesión.
+POST /auth/forgot-password → Enviar correo para recuperar contraseña.
+POST /auth/reset-password → Restablecer la contraseña.
+
+Gestión de Publicaciones:
+
+Rutas:
+GET /posts → Obtener todas las publicaciones (Feed).
+POST /posts → Crear una nueva publicación.
+PATCH /posts/:postId → Editar publicación.
+DELETE /posts/:postId → Eliminar publicación.
+
+Comentarios:
+
+Rutas:
+POST /posts/:postId/comment → Comentar en una publicación.
+DELETE /comments/:commentId → Eliminar comentario.
+PATCH /comments/:commentId → Editar comentario.
+
+Mensajería:
+
+Rutas:
+GET /messages → Obtener todas las conversaciones del usuario.
+POST /messages → Enviar mensaje directo.
+
+
+Rutas de Acceso:
+Gestión de Usuarios:
+
+*
+Rutas:
+GET /admin/users → Listar todos los usuarios.
+PATCH /admin/users/:userId → Editar usuarios (por admin).
+DELETE /admin/users/:userId → Eliminar o bloquear usuarios.
+*
+
+GET /admin/users → Ver lista de todos los usuarios.
+PATCH /admin/users/:userId → Editar perfil de un usuario.
+DELETE /admin/users/:userId → Eliminar cuenta de un usuario.
+POST /admin/users/:userId/block → Bloquear/desactivar cuenta de un usuario.
+PATCH /admin/users/:userId/role → Cambiar el rol de un usuario.
+
+Moderación de Publicaciones:
+
+GET /admin/posts → Ver todas las publicaciones.
+DELETE /admin/posts/:postId → Eliminar publicación inapropiada.
+GET /admin/posts/reports → Ver reportes de publicaciones.
+
+Subscripciones:
+
+GET /admin/subscriptions → Ver todas las suscripciones activas.
+PATCH /admin/subscriptions/:userId → Asignar suscripción manualmente.
+
+Transacciones:
+
+GET /admin/payments → Ver todas las transacciones.
+PATCH /admin/payments/:paymentId → Revisar o procesar pagos en disputa.
+
+Notificaciones:
+
+POST /admin/notifications → Enviar notificaciones globales a los usuarios.
+
+
+Analítica:
+
+GET /admin/reports → Ver estadísticas de uso y generar reportes.
